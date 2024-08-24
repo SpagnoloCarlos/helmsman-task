@@ -59,7 +59,7 @@ const Task: React.FC<ITaskProps> = ({ task, columnId, setBoard, board, index }) 
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`mb-2 rounded bg-gray-100 p-2 shadow-sm ${
+          className={`mb-2 rounded border border-border bg-background p-2 shadow-sm ${
             snapshot.isDragging ? "opacity-50" : ""
           }`}
         >
@@ -83,7 +83,7 @@ const Task: React.FC<ITaskProps> = ({ task, columnId, setBoard, board, index }) 
                     <GripVertical className="h-4 w-4 cursor-move text-gray-400" />
                   </div>
                   <Checkbox id={task.id} />
-                  <label htmlFor={task.id} className="flex-grow">
+                  <label htmlFor={task.id} className="flex-grow text-foreground">
                     {task.content}
                   </label>
                 </div>

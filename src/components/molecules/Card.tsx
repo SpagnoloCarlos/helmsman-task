@@ -58,7 +58,7 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
 
   return (
     <div className="w-80 flex-shrink-0">
-      <CardUI className="bg-white p-4">
+      <CardUI className="bg-card p-4 text-card-foreground">
         <CardContent className="p-0">
           {editingColumn === column.id ? (
             <div className="mb-2 flex items-center">
@@ -90,7 +90,7 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`min-h-[100px] ${snapshot.isDraggingOver ? "bg-gray-100" : ""}`}
+                className={`min-h-[100px] ${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
               >
                 {column.tasks.map((task, index) => (
                   <Task

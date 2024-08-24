@@ -3,14 +3,18 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
-import { PlusIcon } from "lucide-react";
+import { PlusIcon, SunIcon, MoonIcon } from "lucide-react";
 import Card from "@/components/molecules/Card";
 import { IBoard, IColumn } from "@/types/types";
 import { initialBoard } from "@/lib/constanst";
+import { Switch } from "@/components/ui/switch";
+import { useTheme } from "next-themes";
 
 const Home = () => {
   const [board, setBoard] = useState<IBoard>(initialBoard);
   const [readyBoard, setReadyBoard] = useState(false);
+  const { theme, setTheme } = useTheme();
+  const [checked, setChecked] = useState(false);
 
   useEffect(() => {
     const savedBoard = localStorage?.getItem("HelmsmanTaskBoard");
@@ -22,10 +26,15 @@ const Home = () => {
 
   useEffect(() => {
     if (readyBoard && board) {
-      console.log("entra");
       localStorage.setItem("HelmsmanTaskBoard", JSON.stringify(board));
     }
   }, [board, readyBoard]);
+
+  useEffect(() => {
+    if (theme) {
+      setChecked(theme === "dark");
+    }
+  }, [theme]);
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -63,9 +72,20 @@ const Home = () => {
     setBoard({ ...board, columns: [...board.columns, newColumn] });
   };
 
+  const toggleTheme = () => {
+    setTheme(theme === "light" ? "dark" : "light");
+  };
+
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="mb-4 text-2xl font-bold">Timonel</h1>
+    <div className="min-h-screen bg-background p-8 text-foreground">
+      <div className="mb-8 flex items-center justify-between">
+        <h1 className="text-3xl font-bold">HelmsmanTask</h1>
+        <div className="flex items-center space-x-2">
+          <SunIcon className="h-4 w-4" />
+          <Switch checked={checked} onCheckedChange={toggleTheme} aria-label="Toggle dark mode" />
+          <MoonIcon className="h-4 w-4" />
+        </div>
+      </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="flex gap-4 overflow-x-auto pb-4 [&>div:last-of-type]:w-max">
           {board.columns.map((column) => (
