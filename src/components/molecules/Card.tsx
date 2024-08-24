@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SaveIcon, PencilIcon, XIcon, MoreVertical } from "lucide-react";
+import { SaveIcon, PencilIcon, XIcon, MoreVertical, Trash } from "lucide-react";
 import { Card as CardUI, CardContent } from "../ui/card";
 import { v4 as uuidv4 } from "uuid";
 import { IBoard, IColumn, ITask } from "@/types/types";
@@ -89,8 +89,14 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                    <DropdownMenuItem onClick={startEditingColumn}>Editar</DropdownMenuItem>
-                    <DropdownMenuItem onClick={deleteColumn}>Eliminar</DropdownMenuItem>
+                    <DropdownMenuItem onClick={startEditingColumn}>
+                      <PencilIcon className="mr-2 h-3 w-3" />
+                      Renombrar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={deleteColumn}>
+                      <Trash className="mr-2 h-3 w-3" />
+                      Eliminar
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
@@ -101,7 +107,7 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
+                className={`min-h-4 ${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
               >
                 {column.tasks.map((task, index) => (
                   <Task
