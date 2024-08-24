@@ -2,11 +2,17 @@ import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SaveIcon, PencilIcon, XIcon } from "lucide-react";
+import { SaveIcon, PencilIcon, XIcon, MoreVertical } from "lucide-react";
 import { Card as CardUI, CardContent } from "../ui/card";
 import { v4 as uuidv4 } from "uuid";
 import { IBoard, IColumn, ITask } from "@/types/types";
 import Task from "@/components/atoms/Task";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 interface ICardProps {
   column: IColumn;
@@ -60,37 +66,42 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
     <div className="w-80 flex-shrink-0">
       <CardUI className="bg-card p-4 text-card-foreground">
         <CardContent className="p-0">
-          {editingColumn === column.id ? (
-            <div className="mb-2 flex items-center">
-              <Input
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                className="mr-2"
-                autoFocus
-              />
-              <Button variant="outline" size="sm" onClick={saveColumnTitle}>
-                <SaveIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">{column.title}</h2>
-              <div>
-                <Button variant="ghost" size="sm" onClick={startEditingColumn}>
-                  <PencilIcon className="h-4 w-4" />
+          <div className="mb-4 flex items-center justify-between">
+            {editingColumn === column.id ? (
+              <>
+                <Input
+                  value={newColumnTitle}
+                  onChange={(e) => setNewColumnTitle(e.target.value)}
+                  className="mr-2"
+                  autoFocus
+                />
+                <Button variant="outline" size="sm" onClick={saveColumnTitle}>
+                  <SaveIcon className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={deleteColumn}>
-                  <XIcon className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+                <h2 className="text-lg font-semibold">{column.title}</h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={startEditingColumn}>Editar</DropdownMenuItem>
+                    <DropdownMenuItem onClick={deleteColumn}>Eliminar</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
           <Droppable droppableId={column.id}>
             {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`min-h-[100px] ${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
+                className={`${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
               >
                 {column.tasks.map((task, index) => (
                   <Task

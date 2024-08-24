@@ -1,6 +1,7 @@
 /*----------------------------------------
   Original component by V0.dev + chatGPT 
   used as a reference
+  https://v0.dev/chat/xc7Qca0gC3t
 -----------------------------------------*/
 
 "use client";
