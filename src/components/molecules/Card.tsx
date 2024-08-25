@@ -13,6 +13,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useToast } from "../ui/use-toast";
 
 interface ICardProps {
   column: IColumn;
@@ -25,6 +26,7 @@ const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProj
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [newColumnTitle, setNewColumnTitle] = useState<string>(column.title);
   const [newTaskContent, setNewTaskContent] = useState<string>("");
+  const { toast } = useToast();
 
   const addTask = () => {
     if (newTaskContent.trim() === "") return;
@@ -70,6 +72,9 @@ const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProj
         ? { ...project, columns: project.columns.filter((col) => col.id !== column.id) }
         : project,
     );
+    toast({
+      description: `${column.title}: se eliminó correctamente.`,
+    });
     setProjects(newProjects);
   };
 

@@ -36,6 +36,7 @@ import {
   AlertDialogTitle,
 } from "../ui/alert-dialog";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
+import { useToast } from "../ui/use-toast";
 
 const Home = () => {
   const [projects, setProjects] = useState<IProject[]>([initialProject]);
@@ -48,6 +49,7 @@ const Home = () => {
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
   const [isDeleteProjectDialogOpen, setIsDeleteProjectDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   const currentProject = projects.find((p) => p.id === currentProjectId) || projects[0];
 
@@ -137,6 +139,9 @@ const Home = () => {
   const deleteProject = () => {
     if (projects.length === 1) return; // Prevent deleting the last project
     const newProjects = projects.filter((project) => project.id !== currentProjectId);
+    toast({
+      description: `${currentProject.name}: se eliminó correctamente.`,
+    });
     setProjects(newProjects);
     setCurrentProjectId(newProjects[0].id);
     setIsDeleteProjectDialogOpen(false);

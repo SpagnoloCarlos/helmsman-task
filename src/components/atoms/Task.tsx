@@ -20,6 +20,7 @@ import {
 } from "../ui/dialog";
 import { Textarea } from "../ui/textarea";
 import { ScrollArea } from "../ui/scroll-area";
+import { useToast } from "../ui/use-toast";
 
 interface ITaskProps {
   task: ITask;
@@ -42,6 +43,7 @@ const Task: React.FC<ITaskProps> = ({
   const [editedTaskContent, setEditedTaskContent] = useState<string>("");
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
   const [taskDescription, setTaskDescription] = useState("");
+  const { toast } = useToast();
 
   const startEditingTask = () => {
     setEditingTask(task.id);
@@ -85,6 +87,9 @@ const Task: React.FC<ITaskProps> = ({
           }
         : project,
     );
+    toast({
+      description: `${task.content}: se eliminó correctamente.`,
+    });
     setProjects(newProjects);
   };
 
