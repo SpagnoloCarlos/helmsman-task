@@ -3,7 +3,7 @@ import { Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SaveIcon, PencilIcon, Trash, GripVertical, MoreVertical, Plus } from "lucide-react";
-import { IBoard, ITask } from "@/types/types";
+import { IProject, ITask } from "@/types/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,12 +24,20 @@ import { ScrollArea } from "../ui/scroll-area";
 interface ITaskProps {
   task: ITask;
   columnId: string;
-  setBoard: React.Dispatch<React.SetStateAction<IBoard>>;
-  board: IBoard;
+  setProjects: React.Dispatch<React.SetStateAction<Array<IProject>>>;
+  projects: Array<IProject>;
+  currentProjectId: string;
   index: number;
 }
 
-const Task: React.FC<ITaskProps> = ({ task, columnId, setBoard, board, index }) => {
+const Task: React.FC<ITaskProps> = ({
+  task,
+  columnId,
+  setProjects,
+  projects,
+  currentProjectId,
+  index,
+}) => {
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editedTaskContent, setEditedTaskContent] = useState<string>("");
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
@@ -42,32 +50,42 @@ const Task: React.FC<ITaskProps> = ({ task, columnId, setBoard, board, index }) 
 
   const saveTaskEdit = () => {
     if (editedTaskContent.trim() === "") return;
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === columnId
-          ? {
-              ...col,
-              tasks: col.tasks.map((t) =>
-                t.id === task.id ? { ...t, content: editedTaskContent } : t,
-              ),
-            }
-          : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === columnId
+                ? {
+                    ...col,
+                    tasks: col.tasks.map((t) =>
+                      t.id === task.id ? { ...t, content: editedTaskContent } : t,
+                    ),
+                  }
+                : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setEditingTask(null);
     setEditedTaskContent("");
   };
 
   const deleteTask = () => {
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === columnId ? { ...col, tasks: col.tasks.filter((t) => t.id !== task.id) } : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === columnId
+                ? { ...col, tasks: col.tasks.filter((t) => t.id !== task.id) }
+                : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
   };
 
   const openDescriptionModal = () => {
@@ -75,20 +93,24 @@ const Task: React.FC<ITaskProps> = ({ task, columnId, setBoard, board, index }) 
   };
 
   const saveDescription = () => {
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === columnId
-          ? {
-              ...col,
-              tasks: col.tasks.map((newTask) =>
-                newTask.id === task.id ? { ...newTask, description: taskDescription } : newTask,
-              ),
-            }
-          : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === columnId
+                ? {
+                    ...col,
+                    tasks: col.tasks.map((t) =>
+                      t.id === task.id ? { ...t, description: taskDescription } : t,
+                    ),
+                  }
+                : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setIsDescriptionModalOpen(false);
   };
 

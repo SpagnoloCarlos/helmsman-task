@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SaveIcon, PencilIcon, XIcon, MoreVertical, Trash } from "lucide-react";
+import { SaveIcon, PencilIcon, MoreVertical, Trash } from "lucide-react";
 import { Card as CardUI, CardContent } from "../ui/card";
 import { v4 as uuidv4 } from "uuid";
-import { IBoard, IColumn, ITask } from "@/types/types";
+import { IColumn, IProject, ITask } from "@/types/types";
 import Task from "@/components/atoms/Task";
 import {
   DropdownMenu,
@@ -16,11 +16,12 @@ import {
 
 interface ICardProps {
   column: IColumn;
-  board: IBoard;
-  setBoard: React.Dispatch<React.SetStateAction<IBoard>>;
+  setProjects: React.Dispatch<React.SetStateAction<Array<IProject>>>;
+  projects: Array<IProject>;
+  currentProjectId: string;
 }
 
-const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
+const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProjectId }) => {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [newColumnTitle, setNewColumnTitle] = useState<string>(column.title);
   const [newTaskContent, setNewTaskContent] = useState<string>("");
@@ -28,13 +29,17 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
   const addTask = () => {
     if (newTaskContent.trim() === "") return;
     const newTask: ITask = { id: uuidv4(), content: newTaskContent };
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === column.id ? { ...col, tasks: [...col.tasks, newTask] } : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === column.id ? { ...col, tasks: [...col.tasks, newTask] } : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setNewTaskContent("");
   };
 
@@ -44,22 +49,28 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
 
   const saveColumnTitle = () => {
     if (newColumnTitle.trim() === "") return;
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === column.id ? { ...col, title: newColumnTitle } : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === column.id ? { ...col, title: newColumnTitle } : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setEditingColumn(null);
+    setNewColumnTitle("");
   };
 
   const deleteColumn = () => {
-    const newBoard = {
-      ...board,
-      columns: board.columns.filter((col) => col.id !== column.id),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? { ...project, columns: project.columns.filter((col) => col.id !== column.id) }
+        : project,
+    );
+    setProjects(newProjects);
   };
 
   return (
@@ -114,8 +125,9 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
                     key={task.id}
                     task={task}
                     columnId={column.id}
-                    setBoard={setBoard}
-                    board={board}
+                    projects={projects}
+                    setProjects={setProjects}
+                    currentProjectId={currentProjectId}
                     index={index}
                   />
                 ))}

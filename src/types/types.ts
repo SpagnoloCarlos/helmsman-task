@@ -10,6 +10,8 @@ export interface IColumn {
   tasks: ITask[];
 }
 
-export interface IBoard {
+export interface IProject {
+  id: string;
+  name: string;
   columns: IColumn[];
 }
