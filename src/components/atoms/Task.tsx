@@ -42,7 +42,7 @@ const Task: React.FC<ITaskProps> = ({
   const [editingTask, setEditingTask] = useState<string | null>(null);
   const [editedTaskContent, setEditedTaskContent] = useState<string>("");
   const [isDescriptionModalOpen, setIsDescriptionModalOpen] = useState(false);
-  const [taskDescription, setTaskDescription] = useState("");
+  const [taskDescription, setTaskDescription] = useState(task.description ?? "");
   const { toast } = useToast();
 
   const startEditingTask = () => {
