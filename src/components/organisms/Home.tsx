@@ -3,7 +3,16 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
-import { PlusIcon, SunIcon, MoonIcon, Pencil, Trash, PlusCircle, MoreVertical } from "lucide-react";
+import {
+  PlusIcon,
+  SunIcon,
+  MoonIcon,
+  Pencil,
+  Trash,
+  PlusCircle,
+  MoreVertical,
+  FolderOpen,
+} from "lucide-react";
 import Card from "@/components/molecules/Card";
 import { IColumn, IProject } from "@/types/types";
 import { initialProject } from "@/lib/constanst";
@@ -37,10 +46,11 @@ import {
 } from "../ui/alert-dialog";
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { useToast } from "../ui/use-toast";
+import Footer from "./Footer";
 
 const Home = () => {
-  const [projects, setProjects] = useState<IProject[]>([initialProject]);
-  const [currentProjectId, setCurrentProjectId] = useState(initialProject.id);
+  const [projects, setProjects] = useState<IProject[]>([]);
+  const [currentProjectId, setCurrentProjectId] = useState("");
   const [readyBoard, setReadyBoard] = useState(false);
   const { theme, setTheme } = useTheme();
   const [checked, setChecked] = useState(false);
@@ -49,6 +59,7 @@ const Home = () => {
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
   const [editedProjectName, setEditedProjectName] = useState("");
   const [isDeleteProjectDialogOpen, setIsDeleteProjectDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
   const currentProject = projects.find((p) => p.id === currentProjectId) || projects[0];
@@ -57,11 +68,17 @@ const Home = () => {
     const savedProjects = localStorage.getItem("HelmsmanTaskProjects");
     const savedCurrentProjectId = localStorage.getItem("HelmsmanTaskCurrentProjectId");
     if (savedProjects) {
-      setProjects(JSON.parse(savedProjects));
+      const projects = JSON.parse(savedProjects);
+      setProjects(projects);
+    } else {
+      setProjects([initialProject]);
     }
     if (savedCurrentProjectId) {
       setCurrentProjectId(savedCurrentProjectId);
+    } else {
+      setCurrentProjectId(initialProject?.id);
     }
+    setLoading(false);
     setReadyBoard(true);
   }, []);
 
@@ -137,13 +154,17 @@ const Home = () => {
   };
 
   const deleteProject = () => {
-    if (projects.length === 1) return; // Prevent deleting the last project
+    // if (projects.length === 1) return;
     const newProjects = projects.filter((project) => project.id !== currentProjectId);
     toast({
       description: `${currentProject.name}: se eliminó correctamente.`,
     });
     setProjects(newProjects);
-    setCurrentProjectId(newProjects[0].id);
+    if (newProjects.length > 0) {
+      setCurrentProjectId(newProjects[0].id);
+    } else {
+      setCurrentProjectId("");
+    }
     setIsDeleteProjectDialogOpen(false);
   };
 
@@ -178,7 +199,7 @@ const Home = () => {
   };
 
   return (
-    <main className="mx-auto min-h-screen max-w-[1440px] bg-background p-8 text-foreground">
+    <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col bg-background p-8 text-foreground">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">HelmsmanTask</h1>
         <div className="flex items-center space-x-2">
@@ -189,69 +210,82 @@ const Home = () => {
       </div>
       <div className="mb-12 flex items-center justify-between border-b border-border pb-6">
         <div className="flex items-center gap-8">
-          <h2 className="text-xl font-semibold">{currentProject.name}</h2>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={startEditingProject}>
-                <Pencil className="mr-2 h-3 w-3" />
-                Renombrar
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={confirmDeleteProject}>
-                <Trash className="mr-2 h-3 w-3" />
-                Eliminar
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <h2 className="text-xl font-semibold">
+            {!loading ? (currentProject ? currentProject.name : "Crear nuevo proyecto") : ""}
+          </h2>
+          {currentProject && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onClick={startEditingProject}>
+                  <Pencil className="mr-2 h-3 w-3" />
+                  Renombrar
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={confirmDeleteProject}>
+                  <Trash className="mr-2 h-3 w-3" />
+                  Eliminar
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-4">
-            <span>Seleccione un proyecto:</span>
-            <Select value={currentProjectId} onValueChange={setCurrentProjectId}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Select project" />
-              </SelectTrigger>
-              <SelectContent>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          {currentProjectId && (
+            <div className="flex items-center gap-4">
+              <span>Seleccione un proyecto:</span>
+              <Select value={currentProjectId} onValueChange={setCurrentProjectId}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Select project" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           <Button onClick={() => setIsNewProjectModalOpen(true)}>
             <PlusCircle className="mr-2 h-4 w-4" />
             Nuevo proyecto
           </Button>
         </div>
       </div>
-
-      <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="flex gap-4 overflow-x-auto pb-4 [&>div:last-of-type]:w-max">
-            {currentProject.columns.map((column) => (
-              <Card
-                key={column.id}
-                column={column}
-                setProjects={setProjects}
-                projects={projects}
-                currentProjectId={currentProjectId}
-              />
-            ))}
-            <div className="w-80 flex-shrink-0">
-              <Button className="h-16 w-16" variant="outline" onClick={addColumn}>
-                <PlusIcon className="h-8 w-8" />
-              </Button>
+      {currentProject && (
+        <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
+          <DragDropContext onDragEnd={onDragEnd}>
+            <div className="flex gap-4 overflow-x-auto pb-4 [&>div:last-of-type]:w-max">
+              {currentProject.columns.map((column) => (
+                <Card
+                  key={column.id}
+                  column={column}
+                  setProjects={setProjects}
+                  projects={projects}
+                  currentProjectId={currentProjectId}
+                />
+              ))}
+              <div className="w-80 flex-shrink-0">
+                <Button className="h-16 w-16" variant="outline" onClick={addColumn}>
+                  <PlusIcon className="h-8 w-8" />
+                </Button>
+              </div>
             </div>
-          </div>
-        </DragDropContext>
-        <ScrollBar orientation="horizontal" />
-      </ScrollArea>
+          </DragDropContext>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      )}
+      {!loading && !currentProject && (
+        <div className="my-auto flex flex-col items-center justify-center gap-4">
+          <FolderOpen className="h-32 w-32" />
+          <p className="text-xl">Aún no tienes proyectos. Crea uno nuevo.</p>
+        </div>
+      )}
       <Dialog open={isNewProjectModalOpen} onOpenChange={setIsNewProjectModalOpen}>
         <DialogContent>
           <DialogHeader>
@@ -305,6 +339,7 @@ const Home = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Footer />
     </main>
   );
 };
