@@ -198,7 +198,7 @@ const Task: React.FC<ITaskProps> = ({
             onChange={(e) => setTaskDescription(e.target.value)}
             placeholder="Ingrese la descripción de la tarea"
           />
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsDescriptionModalOpen(false)}>
               Cancelar
             </Button>

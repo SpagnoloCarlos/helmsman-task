@@ -202,7 +202,7 @@ const Home = () => {
     <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col bg-background p-8 text-foreground">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">HelmsmanTask</h1>
-        <div className="flex items-center space-x-2">
+        <div className="hidden items-center space-x-2 md:flex">
           <SunIcon className="h-4 w-4" />
           <Switch checked={checked} onCheckedChange={toggleTheme} aria-label="Toggle dark mode" />
           <MoonIcon className="h-4 w-4" />
@@ -299,7 +299,7 @@ const Home = () => {
             onChange={(e) => setNewProjectName(e.target.value)}
             placeholder="Nombre del proyecto"
           />
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsNewProjectModalOpen(false)}>
               Cancelar
             </Button>
@@ -316,9 +316,9 @@ const Home = () => {
           <Input
             value={editedProjectName}
             onChange={(e) => setEditedProjectName(e.target.value)}
-            placeholder="Project name"
+            placeholder="Nombre del proyecto"
           />
-          <DialogFooter>
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setIsEditProjectModalOpen(false)}>
               Cancelar
             </Button>
