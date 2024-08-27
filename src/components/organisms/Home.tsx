@@ -73,7 +73,7 @@ const Home = () => {
     } else {
       setProjects([initialProject]);
     }
-    if (savedCurrentProjectId) {
+    if (savedCurrentProjectId !== null) {
       setCurrentProjectId(savedCurrentProjectId);
     } else {
       setCurrentProjectId(initialProject?.id);
@@ -208,7 +208,7 @@ const Home = () => {
           <MoonIcon className="h-4 w-4" />
         </div>
       </div>
-      <div className="mb-12 flex items-center justify-between border-b border-border pb-6">
+      <div className="mb-12 hidden items-center justify-between border-b border-border pb-6 md:flex">
         <div className="flex items-center gap-8">
           <h2 className="text-xl font-semibold">
             {!loading ? (currentProject ? currentProject.name : "Crear nuevo proyecto") : ""}
@@ -258,27 +258,29 @@ const Home = () => {
         </div>
       </div>
       {currentProject && (
-        <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
-          <DragDropContext onDragEnd={onDragEnd}>
-            <div className="flex gap-4 overflow-x-auto pb-4 [&>div:last-of-type]:w-max">
-              {currentProject.columns.map((column) => (
-                <Card
-                  key={column.id}
-                  column={column}
-                  setProjects={setProjects}
-                  projects={projects}
-                  currentProjectId={currentProjectId}
-                />
-              ))}
-              <div className="w-80 flex-shrink-0">
-                <Button className="h-16 w-16" variant="outline" onClick={addColumn}>
-                  <PlusIcon className="h-8 w-8" />
-                </Button>
+        <div className="flex w-full items-center justify-center">
+          <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="flex flex-col gap-4 overflow-x-auto pb-4 md:flex-row [&>div:last-of-type]:w-max">
+                {currentProject.columns.map((column) => (
+                  <Card
+                    key={column.id}
+                    column={column}
+                    setProjects={setProjects}
+                    projects={projects}
+                    currentProjectId={currentProjectId}
+                  />
+                ))}
+                <div className="w-80 flex-shrink-0">
+                  <Button className="h-16 w-16" variant="outline" onClick={addColumn}>
+                    <PlusIcon className="h-8 w-8" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          </DragDropContext>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+            </DragDropContext>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
       )}
       {!loading && !currentProject && (
         <div className="my-auto flex flex-col items-center justify-center gap-4">

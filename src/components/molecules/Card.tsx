@@ -79,7 +79,7 @@ const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProj
   };
 
   return (
-    <div className="w-80 flex-shrink-0">
+    <div className="w-full shrink-0 md:w-80">
       <CardUI className="bg-card p-4 text-card-foreground">
         <CardContent className="p-0">
           <div className="mb-4 flex items-center justify-between">
