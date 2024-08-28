@@ -1,19 +1,22 @@
-import { IBoard } from "@/types/types";
+import { IProject } from "@/types/types";
+import { v4 as uuidv4 } from "uuid";
 
-export const initialBoard: IBoard = {
+export const initialProject: IProject = {
+  id: uuidv4(),
+  name: "Nuevo proyecto",
   columns: [
     {
-      id: "column-1",
+      id: uuidv4(),
       title: "Por hacer",
       tasks: [],
     },
     {
-      id: "column-2",
+      id: uuidv4(),
       title: "En curso",
       tasks: [],
     },
     {
-      id: "column-3",
+      id: uuidv4(),
       title: "Finalizada",
       tasks: [],
     },

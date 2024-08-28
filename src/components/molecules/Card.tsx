@@ -2,33 +2,46 @@ import React, { useState } from "react";
 import { Droppable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SaveIcon, PencilIcon, XIcon } from "lucide-react";
+import { SaveIcon, PencilIcon, MoreVertical, Trash } from "lucide-react";
 import { Card as CardUI, CardContent } from "../ui/card";
 import { v4 as uuidv4 } from "uuid";
-import { IBoard, IColumn, ITask } from "@/types/types";
+import { IColumn, IProject, ITask } from "@/types/types";
 import Task from "@/components/atoms/Task";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { useToast } from "../ui/use-toast";
 
 interface ICardProps {
   column: IColumn;
-  board: IBoard;
-  setBoard: React.Dispatch<React.SetStateAction<IBoard>>;
+  setProjects: React.Dispatch<React.SetStateAction<Array<IProject>>>;
+  projects: Array<IProject>;
+  currentProjectId: string;
 }
 
-const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
+const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProjectId }) => {
   const [editingColumn, setEditingColumn] = useState<string | null>(null);
   const [newColumnTitle, setNewColumnTitle] = useState<string>(column.title);
   const [newTaskContent, setNewTaskContent] = useState<string>("");
+  const { toast } = useToast();
 
   const addTask = () => {
     if (newTaskContent.trim() === "") return;
     const newTask: ITask = { id: uuidv4(), content: newTaskContent };
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === column.id ? { ...col, tasks: [...col.tasks, newTask] } : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === column.id ? { ...col, tasks: [...col.tasks, newTask] } : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setNewTaskContent("");
   };
 
@@ -38,67 +51,93 @@ const Card: React.FC<ICardProps> = ({ column, board, setBoard }) => {
 
   const saveColumnTitle = () => {
     if (newColumnTitle.trim() === "") return;
-    const newBoard = {
-      ...board,
-      columns: board.columns.map((col) =>
-        col.id === column.id ? { ...col, title: newColumnTitle } : col,
-      ),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? {
+            ...project,
+            columns: project.columns.map((col) =>
+              col.id === column.id ? { ...col, title: newColumnTitle } : col,
+            ),
+          }
+        : project,
+    );
+    setProjects(newProjects);
     setEditingColumn(null);
+    setNewColumnTitle("");
   };
 
   const deleteColumn = () => {
-    const newBoard = {
-      ...board,
-      columns: board.columns.filter((col) => col.id !== column.id),
-    };
-    setBoard(newBoard);
+    const newProjects = projects.map((project) =>
+      project.id === currentProjectId
+        ? { ...project, columns: project.columns.filter((col) => col.id !== column.id) }
+        : project,
+    );
+    toast({
+      description: `${column.title}: se eliminó correctamente.`,
+    });
+    setProjects(newProjects);
   };
 
   return (
-    <div className="w-80 flex-shrink-0">
-      <CardUI className="bg-white p-4">
+    <div className="w-full shrink-0 md:w-80">
+      <CardUI className="bg-card p-4 text-card-foreground">
         <CardContent className="p-0">
-          {editingColumn === column.id ? (
-            <div className="mb-2 flex items-center">
-              <Input
-                value={newColumnTitle}
-                onChange={(e) => setNewColumnTitle(e.target.value)}
-                className="mr-2"
-                autoFocus
-              />
-              <Button variant="outline" size="sm" onClick={saveColumnTitle}>
-                <SaveIcon className="h-4 w-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="mb-2 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">{column.title}</h2>
-              <div>
-                <Button variant="ghost" size="sm" onClick={startEditingColumn}>
-                  <PencilIcon className="h-4 w-4" />
+          <div className="mb-4 flex items-center justify-between">
+            {editingColumn === column.id ? (
+              <>
+                <Input
+                  value={newColumnTitle}
+                  onChange={(e) => setNewColumnTitle(e.target.value)}
+                  className="mr-2"
+                  autoFocus
+                />
+                <Button variant="outline" size="sm" onClick={saveColumnTitle}>
+                  <SaveIcon className="h-4 w-4" />
                 </Button>
-                <Button variant="ghost" size="sm" onClick={deleteColumn}>
-                  <XIcon className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          )}
+              </>
+            ) : (
+              <>
+                <h2 className="flex items-center gap-3 text-lg font-semibold">
+                  {column.title}
+                  <span className="rounded-md bg-background px-3 py-1 text-sm">
+                    {column.tasks?.length}
+                  </span>
+                </h2>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="sm">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={startEditingColumn}>
+                      <PencilIcon className="mr-2 h-3 w-3" />
+                      Renombrar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={deleteColumn}>
+                      <Trash className="mr-2 h-3 w-3" />
+                      Eliminar
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            )}
+          </div>
           <Droppable droppableId={column.id}>
             {(provided, snapshot) => (
               <div
                 {...provided.droppableProps}
                 ref={provided.innerRef}
-                className={`min-h-[100px] ${snapshot.isDraggingOver ? "bg-gray-100" : ""}`}
+                className={`min-h-4 ${snapshot.isDraggingOver ? "bg-accent/50" : ""}`}
               >
                 {column.tasks.map((task, index) => (
                   <Task
                     key={task.id}
                     task={task}
                     columnId={column.id}
-                    setBoard={setBoard}
-                    board={board}
+                    projects={projects}
+                    setProjects={setProjects}
+                    currentProjectId={currentProjectId}
                     index={index}
                   />
                 ))}
