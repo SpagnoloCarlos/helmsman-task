@@ -3,21 +3,10 @@ import React, { useState, useEffect } from "react";
 import { DragDropContext, DropResult } from "@hello-pangea/dnd";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "@/components/ui/button";
-import {
-  PlusIcon,
-  SunIcon,
-  MoonIcon,
-  Pencil,
-  Trash,
-  PlusCircle,
-  MoreVertical,
-  FolderOpen,
-} from "lucide-react";
+import { PlusIcon, Pencil, Trash, PlusCircle, MoreVertical, FolderOpen } from "lucide-react";
 import Card from "@/components/molecules/Card";
 import { IColumn, IProject } from "@/types/types";
 import { initialProject } from "@/lib/constanst";
-import { Switch } from "@/components/ui/switch";
-import { useTheme } from "next-themes";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import {
   DropdownMenu,
@@ -47,13 +36,13 @@ import {
 import { ScrollArea, ScrollBar } from "../ui/scroll-area";
 import { useToast } from "../ui/use-toast";
 import Footer from "./Footer";
+import ThemeSwitch from "@/components/atoms/ThemeSwitch";
+import HamburgerMenu from "@/components/molecules/HamburgerMenu";
 
 const Home = () => {
   const [projects, setProjects] = useState<IProject[]>([]);
   const [currentProjectId, setCurrentProjectId] = useState("");
   const [readyBoard, setReadyBoard] = useState(false);
-  const { theme, setTheme } = useTheme();
-  const [checked, setChecked] = useState(false);
   const [isNewProjectModalOpen, setIsNewProjectModalOpen] = useState(false);
   const [newProjectName, setNewProjectName] = useState("");
   const [isEditProjectModalOpen, setIsEditProjectModalOpen] = useState(false);
@@ -88,12 +77,6 @@ const Home = () => {
       localStorage.setItem("HelmsmanTaskCurrentProjectId", currentProjectId);
     }
   }, [projects, currentProjectId, readyBoard]);
-
-  useEffect(() => {
-    if (theme) {
-      setChecked(theme === "dark");
-    }
-  }, [theme]);
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -144,17 +127,12 @@ const Home = () => {
     setProjects(newProjects);
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === "light" ? "dark" : "light");
-  };
-
   const startEditingProject = () => {
     setEditedProjectName(currentProject.name);
     setIsEditProjectModalOpen(true);
   };
 
   const deleteProject = () => {
-    // if (projects.length === 1) return;
     const newProjects = projects.filter((project) => project.id !== currentProjectId);
     toast({
       description: `${currentProject.name}: se eliminó correctamente.`,
@@ -199,14 +177,21 @@ const Home = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-[1440px] flex-col bg-background p-8 text-foreground">
+    <main className="mx-auto flex min-h-dvh max-w-[1440px] flex-col bg-background p-8 text-foreground">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">HelmsmanTask</h1>
-        <div className="hidden items-center space-x-2 md:flex">
-          <SunIcon className="h-4 w-4" />
-          <Switch checked={checked} onCheckedChange={toggleTheme} aria-label="Toggle dark mode" />
-          <MoonIcon className="h-4 w-4" />
-        </div>
+        <ThemeSwitch className="hidden md:flex" />
+        <HamburgerMenu
+          className="md:hidden"
+          currentProject={currentProject}
+          startEditingProject={startEditingProject}
+          confirmDeleteProject={confirmDeleteProject}
+          projects={projects}
+          currentProjectId={currentProjectId}
+          setCurrentProjectId={setCurrentProjectId}
+          loading={loading}
+          setIsNewProjectModalOpen={setIsNewProjectModalOpen}
+        />
       </div>
       <div className="mb-12 hidden items-center justify-between border-b border-border pb-6 md:flex">
         <div className="flex items-center gap-8">
@@ -261,7 +246,7 @@ const Home = () => {
         <div className="flex w-full items-center justify-center">
           <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
             <DragDropContext onDragEnd={onDragEnd}>
-              <div className="flex flex-col gap-4 overflow-x-auto pb-4 md:flex-row [&>div:last-of-type]:w-max">
+              <div className="flex flex-col items-center gap-4 overflow-x-auto pb-4 md:flex-row md:items-start [&>div:last-of-type]:w-max">
                 {currentProject.columns.map((column) => (
                   <Card
                     key={column.id}
@@ -272,7 +257,7 @@ const Home = () => {
                   />
                 ))}
                 <div className="w-80 flex-shrink-0">
-                  <Button className="h-16 w-16" variant="outline" onClick={addColumn}>
+                  <Button className="h-16 w-16 bg-card" variant="outline" onClick={addColumn}>
                     <PlusIcon className="h-8 w-8" />
                   </Button>
                 </div>
@@ -285,7 +270,7 @@ const Home = () => {
       {!loading && !currentProject && (
         <div className="my-auto flex flex-col items-center justify-center gap-4">
           <FolderOpen className="h-32 w-32" />
-          <p className="text-xl">Aún no tienes proyectos. Crea uno nuevo.</p>
+          <p className="text-center text-lg md:text-xl">Aún no tienes proyectos. Crea uno nuevo.</p>
         </div>
       )}
       <Dialog open={isNewProjectModalOpen} onOpenChange={setIsNewProjectModalOpen}>
