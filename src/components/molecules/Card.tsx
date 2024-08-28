@@ -97,7 +97,12 @@ const Card: React.FC<ICardProps> = ({ column, setProjects, projects, currentProj
               </>
             ) : (
               <>
-                <h2 className="text-lg font-semibold">{column.title}</h2>
+                <h2 className="flex items-center gap-3 text-lg font-semibold">
+                  {column.title}
+                  <span className="rounded-md bg-background px-3 py-1 text-sm">
+                    {column.tasks?.length}
+                  </span>
+                </h2>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="sm">
