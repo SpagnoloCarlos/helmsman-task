@@ -2,6 +2,8 @@
 
 HelmsmanTask es un clon simple e intuitivo de Jira, diseñado para facilitar la gestión de proyectos y tareas, de uso libre y gratuito. Esta aplicación web es responsive y está construida utilizando tecnologías modernas como Next.js, Tailwind CSS y Shadcn.
 
+- **Demo**: [HelmsmanTask](https://helmsman-task.vercel.app/)
+
 <p>
   <img src="https://res.cloudinary.com/doh9z4wqr/image/upload/v1724888138/HelmsmanTask_hvocdd.png" alt="HelmsmanTask" />
 </p>
