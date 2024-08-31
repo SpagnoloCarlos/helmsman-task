@@ -177,7 +177,7 @@ const Home = () => {
   };
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[1440px] flex-col bg-background p-8 text-foreground">
+    <main className="mx-auto flex min-h-dvh max-w-[1440px] flex-col bg-background px-4 py-8 text-foreground md:p-8">
       <div className="mb-8 flex items-center justify-between">
         <h1 className="text-3xl font-bold">HelmsmanTask</h1>
         <ThemeSwitch className="hidden md:flex" />
@@ -244,7 +244,7 @@ const Home = () => {
       </div>
       {currentProject && (
         <div className="flex w-full items-center justify-center">
-          <ScrollArea className="w-[1376px] whitespace-nowrap pb-8">
+          <ScrollArea className="hidden w-[1376px] whitespace-nowrap pb-8 md:block">
             <DragDropContext onDragEnd={onDragEnd}>
               <div className="flex flex-col items-center gap-4 overflow-x-auto pb-4 md:flex-row md:items-start [&>div:last-of-type]:w-max">
                 {currentProject.columns.map((column) => (
@@ -265,6 +265,26 @@ const Home = () => {
             </DragDropContext>
             <ScrollBar orientation="horizontal" />
           </ScrollArea>
+          <div className="w-full md:hidden">
+            <DragDropContext onDragEnd={onDragEnd}>
+              <div className="flex flex-col items-center gap-4 overflow-x-auto pb-4 md:flex-row md:items-start [&>div:last-of-type]:w-max">
+                {currentProject.columns.map((column) => (
+                  <Card
+                    key={column.id}
+                    column={column}
+                    setProjects={setProjects}
+                    projects={projects}
+                    currentProjectId={currentProjectId}
+                  />
+                ))}
+                <div className="w-80 flex-shrink-0">
+                  <Button className="h-16 w-16 bg-card" variant="outline" onClick={addColumn}>
+                    <PlusIcon className="h-8 w-8" />
+                  </Button>
+                </div>
+              </div>
+            </DragDropContext>
+          </div>
         </div>
       )}
       {!loading && !currentProject && (
